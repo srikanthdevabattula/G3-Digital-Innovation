@@ -27,7 +27,14 @@ export function ProductTable({ products }: { products: Product[] }) {
             <td className="p-2">{product.title}</td>
             <td className="p-2">{product.category}</td>
             <td className="p-2">${product.price}</td>
-            <td className="p-2">{product.stock}</td>
+            <td className="p-2">
+              {product.stock}
+              {product.stock < 10 ? (
+                <span className="ml-2 rounded bg-red-100 px-1 text-sm text-red-800">
+                  Low
+                </span>
+              ) : null}
+            </td>
             <td className="p-2">{product.rating}</td>
           </tr>
         ))}

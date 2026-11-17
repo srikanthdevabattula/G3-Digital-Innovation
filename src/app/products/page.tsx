@@ -1,6 +1,6 @@
 import { getCategories, getProducts, PAGE_SIZE } from "@/lib/api";
 import { ProductFilters } from "@/components/products/ProductFilters";
-import { ProductTable } from "@/components/products/ProductTable";
+import { ProductList } from "@/components/products/ProductList";
 import { ProductPagination } from "@/components/products/ProductPagination";
 
 export default async function ProductsPage({
@@ -12,6 +12,7 @@ export default async function ProductsPage({
     category?: string;
     sortBy?: string;
     order?: string;
+    lowStock?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -25,6 +26,7 @@ export default async function ProductsPage({
   const category = params.category || "";
   const sortBy = params.sortBy || "";
   const order = params.order || "asc";
+  const lowStock = params.lowStock === "1";
 
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -44,14 +46,20 @@ export default async function ProductsPage({
         category={category}
         sortBy={sortBy}
         order={order}
+        lowStock={lowStock}
         categories={categories}
       />
 
-      <p className="mb-4">
-        Showing {data.products.length} on this page. Total: {data.total}
-      </p>
-
-      <ProductTable products={data.products} />
+      <ProductList
+        products={data.products}
+        total={data.total}
+        page={page}
+        q={q}
+        category={category}
+        sortBy={sortBy}
+        order={order}
+        lowStock={lowStock}
+      />
 
       <ProductPagination
         page={page}
@@ -60,6 +68,7 @@ export default async function ProductsPage({
         category={category}
         sortBy={sortBy}
         order={order}
+        lowStock={lowStock}
       />
     </main>
   );

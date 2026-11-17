@@ -8,6 +8,7 @@ type Props = {
   category: string;
   sortBy: string;
   order: string;
+  lowStock: boolean;
 };
 
 export function ProductPagination({
@@ -17,8 +18,9 @@ export function ProductPagination({
   category,
   sortBy,
   order,
+  lowStock,
 }: Props) {
-  const current = { q, category, sortBy, order };
+  const current = { q, category, sortBy, order, lowStock };
 
   return (
     <div className="mt-4 flex items-center gap-4">

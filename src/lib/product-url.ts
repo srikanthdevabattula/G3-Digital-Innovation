@@ -4,6 +4,7 @@ export function productsUrl(opts: {
   category: string;
   sortBy: string;
   order: string;
+  lowStock: boolean;
 }) {
   const p = new URLSearchParams();
 
@@ -12,6 +13,7 @@ export function productsUrl(opts: {
   if (opts.category) p.set("category", opts.category);
   if (opts.sortBy) p.set("sortBy", opts.sortBy);
   if (opts.order) p.set("order", opts.order);
+  if (opts.lowStock) p.set("lowStock", "1");
 
   const qs = p.toString();
   return qs ? "/products?" + qs : "/products";

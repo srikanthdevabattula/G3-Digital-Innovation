@@ -3,10 +3,18 @@ type Props = {
   category: string;
   sortBy: string;
   order: string;
+  lowStock: boolean;
   categories: string[];
 };
 
-export function ProductFilters({ q, category, sortBy, order, categories }: Props) {
+export function ProductFilters({
+  q,
+  category,
+  sortBy,
+  order,
+  lowStock,
+  categories,
+}: Props) {
   return (
     <form method="get" action="/products" className="mb-4 flex flex-wrap gap-2">
       <input
@@ -53,6 +61,8 @@ export function ProductFilters({ q, category, sortBy, order, categories }: Props
         <option value="asc">Ascending</option>
         <option value="desc">Descending</option>
       </select>
+
+      {lowStock ? <input type="hidden" name="lowStock" value="1" /> : null}
 
       <button type="submit" className="border px-3 py-1">
         Apply
