@@ -27,6 +27,7 @@ export function ProductDetailActions({
 
     try {
       await deleteProduct(id);
+      window.alert("Deleted: " + title);
       router.push("/products");
     } catch (err) {
       const text = err instanceof Error ? err.message : "Delete failed";
