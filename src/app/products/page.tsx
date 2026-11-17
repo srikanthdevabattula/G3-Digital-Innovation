@@ -1,7 +1,6 @@
-import { getCategories, getProducts, PAGE_SIZE } from "@/lib/api";
+import { getCategories, PAGE_SIZE } from "@/lib/api";
 import { ProductFilters } from "@/components/products/ProductFilters";
-import { ProductList } from "@/components/products/ProductList";
-import { ProductPagination } from "@/components/products/ProductPagination";
+import { ProductResults } from "@/components/products/ProductResults";
 
 export default async function ProductsPage({
   searchParams,
@@ -27,15 +26,14 @@ export default async function ProductsPage({
   const sortBy = params.sortBy || "";
   const order = params.order || "asc";
   const lowStock = params.lowStock === "1";
-
   const skip = (page - 1) * PAGE_SIZE;
 
-  const [data, categories] = await Promise.all([
-    getProducts({ skip, q, category, sortBy, order }),
-    getCategories(),
-  ]);
-
-  const totalPages = Math.ceil(data.total / PAGE_SIZE) || 1;
+  let categories: string[] = [];
+  try {
+    categories = await getCategories();
+  } catch {
+    categories = [];
+  }
 
   return (
     <main className="p-6">
@@ -50,20 +48,9 @@ export default async function ProductsPage({
         categories={categories}
       />
 
-      <ProductList
-        products={data.products}
-        total={data.total}
+      <ProductResults
         page={page}
-        q={q}
-        category={category}
-        sortBy={sortBy}
-        order={order}
-        lowStock={lowStock}
-      />
-
-      <ProductPagination
-        page={page}
-        totalPages={totalPages}
+        skip={skip}
         q={q}
         category={category}
         sortBy={sortBy}

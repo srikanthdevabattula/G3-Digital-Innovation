@@ -1,10 +1,35 @@
+import Link from "next/link";
 import type { Product } from "@/types/product";
 
-export function ProductTable({ products }: { products: Product[] }) {
+type Props = {
+  products: Product[];
+  selectedIds: number[];
+  onToggle: (id: number) => void;
+  onToggleAll: () => void;
+};
+
+export function ProductTable({
+  products,
+  selectedIds,
+  onToggle,
+  onToggleAll,
+}: Props) {
+  const allSelected =
+    products.length > 0 &&
+    products.every((product) => selectedIds.includes(product.id));
+
   return (
     <table className="w-full border-collapse text-left">
       <thead>
         <tr className="border-b">
+          <th className="p-2">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={onToggleAll}
+              aria-label="Select all products on this page"
+            />
+          </th>
           <th className="p-2">Thumbnail</th>
           <th className="p-2">Title</th>
           <th className="p-2">Category</th>
@@ -17,6 +42,14 @@ export function ProductTable({ products }: { products: Product[] }) {
         {products.map((product) => (
           <tr key={product.id} className="border-b">
             <td className="p-2">
+              <input
+                type="checkbox"
+                checked={selectedIds.includes(product.id)}
+                onChange={() => onToggle(product.id)}
+                aria-label={"Select " + product.title}
+              />
+            </td>
+            <td className="p-2">
               <img
                 src={product.thumbnail}
                 alt={product.title}
@@ -24,7 +57,11 @@ export function ProductTable({ products }: { products: Product[] }) {
                 height={48}
               />
             </td>
-            <td className="p-2">{product.title}</td>
+            <td className="p-2">
+              <Link href={"/products/" + product.id} className="underline">
+                {product.title}
+              </Link>
+            </td>
             <td className="p-2">{product.category}</td>
             <td className="p-2">${product.price}</td>
             <td className="p-2">

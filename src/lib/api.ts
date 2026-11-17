@@ -5,14 +5,22 @@ export const PAGE_SIZE = 10;
 
 async function getJson(path: string, options?: RequestInit) {
   const res = await fetch(BASE_URL + path, {
+    cache: "no-store",
     headers: { "Content-Type": "application/json" },
     ...options,
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Could not load products. Please try again.");
+  }
 
   if (!res.ok) {
-    throw new Error(data.message || "Request failed");
+    throw new Error(data.message || "Could not load products. Please try again.");
   }
 
   return data;
@@ -58,8 +66,27 @@ export function getProducts(filters: {
   return getJson("/products?" + query) as Promise<ProductsResponse>;
 }
 
-export function getProduct(id: number) {
-  return getJson("/products/" + id) as Promise<Product>;
+export async function getProduct(id: number) {
+  const res = await fetch(BASE_URL + "/products/" + id, { cache: "no-store" });
+  const text = await res.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Could not load product. Please try again.");
+  }
+
+  // DummyJSON sends 404 when the id does not exist
+  if (res.status === 404) {
+    return null;
+  }
+
+  if (!res.ok) {
+    throw new Error(data.message || "Could not load product. Please try again.");
+  }
+
+  return data as Product;
 }
 
 export function createProduct(body: ProductInput) {
