@@ -1,18 +1,31 @@
-import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getCategories, getProduct } from "@/lib/api";
+import { ProductForm } from "@/components/products/ProductForm";
 
-export default async function EditProductPlaceholder({
+export default async function EditProductPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const productId = Number(id);
+
+  if (!productId) {
+    notFound();
+  }
+
+  const [product, categories] = await Promise.all([
+    getProduct(productId),
+    getCategories(),
+  ]);
+
+  if (!product) {
+    notFound();
+  }
 
   return (
     <main className="p-6">
-      <p>The shared create/edit form is the next step.</p>
-      <Link href={"/products/" + id} className="mt-4 inline-block">
-        Back to product
-      </Link>
+      <ProductForm categories={categories} product={product} />
     </main>
   );
 }

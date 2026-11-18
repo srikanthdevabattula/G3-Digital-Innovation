@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCategories, PAGE_SIZE } from "@/lib/api";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ProductResults } from "@/components/products/ProductResults";
@@ -37,7 +38,12 @@ export default async function ProductsPage({
 
   return (
     <main className="p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Products</h1>
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">Products</h1>
+        <Link href="/products/new" className="border px-3 py-1">
+          Add product
+        </Link>
+      </div>
 
       <ProductFilters
         q={q}
