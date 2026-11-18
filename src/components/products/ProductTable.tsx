@@ -20,6 +20,7 @@ export function ProductTable({
 
   return (
     <table className="w-full border-collapse text-left">
+      <caption className="sr-only">Products on this page</caption>
       <thead>
         <tr className="border-b">
           <th className="p-2">

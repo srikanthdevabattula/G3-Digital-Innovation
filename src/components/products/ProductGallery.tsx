@@ -17,7 +17,7 @@ export function ProductGallery({
   }
 
   return (
-    <div>
+    <div role="group" aria-label={"Images for " + title}>
       <img
         src={photos[active]}
         alt={title}
@@ -30,7 +30,8 @@ export function ProductGallery({
             key={src + index}
             type="button"
             onClick={() => setActive(index)}
-            aria-label={"Show image " + (index + 1)}
+            aria-label={"Show image " + (index + 1) + " of " + photos.length}
+            aria-pressed={index === active}
             className={
               index === active ? "border-2 border-white p-0.5" : "border p-0.5"
             }

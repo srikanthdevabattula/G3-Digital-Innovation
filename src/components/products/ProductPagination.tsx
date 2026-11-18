@@ -23,22 +23,22 @@ export function ProductPagination({
   const current = { q, category, sortBy, order, lowStock };
 
   return (
-    <div className="mt-4 flex items-center gap-4">
+    <nav aria-label="Pagination" className="mt-4 flex flex-wrap items-center gap-4">
       {page > 1 ? (
         <Link href={productsUrl({ ...current, page: page - 1 })}>Previous</Link>
       ) : (
-        <span>Previous</span>
+        <span aria-disabled="true">Previous</span>
       )}
 
-      <span>
+      <span aria-current="page">
         Page {page} of {totalPages}
       </span>
 
       {page < totalPages ? (
         <Link href={productsUrl({ ...current, page: page + 1 })}>Next</Link>
       ) : (
-        <span>Next</span>
+        <span aria-disabled="true">Next</span>
       )}
-    </div>
+    </nav>
   );
 }

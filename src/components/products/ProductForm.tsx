@@ -121,61 +121,91 @@ export function ProductForm({ categories, product }: Props) {
         {isEdit ? "Edit product" : "Create product"}
       </h1>
 
-      {formError ? <p className="text-red-500">{formError}</p> : null}
+      {formError ? (
+        <p role="alert" aria-live="assertive" className="text-red-500">
+          {formError}
+        </p>
+      ) : null}
 
-      <label>
-        Title
+      <div>
+        <label htmlFor="title">Title</label>
         <input
+          id="title"
           className="mt-1 w-full border px-2 py-1"
           value={values.title}
           onChange={(e) => updateField("title", e.target.value)}
           aria-invalid={Boolean(errors.title)}
+          aria-describedby={errors.title ? "title-error" : undefined}
         />
-        {errors.title ? <p className="text-sm text-red-500">{errors.title}</p> : null}
-      </label>
+        {errors.title ? (
+          <p id="title-error" role="alert" className="text-sm text-red-500">
+            {errors.title}
+          </p>
+        ) : null}
+      </div>
 
-      <label>
-        Price
+      <div>
+        <label htmlFor="price">Price</label>
         <input
+          id="price"
           className="mt-1 w-full border px-2 py-1"
           value={values.price}
           onChange={(e) => updateField("price", e.target.value)}
           aria-invalid={Boolean(errors.price)}
+          aria-describedby={errors.price ? "price-error" : undefined}
         />
-        {errors.price ? <p className="text-sm text-red-500">{errors.price}</p> : null}
-      </label>
+        {errors.price ? (
+          <p id="price-error" role="alert" className="text-sm text-red-500">
+            {errors.price}
+          </p>
+        ) : null}
+      </div>
 
-      <label>
-        Discount % (optional)
+      <div>
+        <label htmlFor="discount">Discount % (optional)</label>
         <input
+          id="discount"
           className="mt-1 w-full border px-2 py-1"
           value={values.discountPercentage}
           onChange={(e) => updateField("discountPercentage", e.target.value)}
           aria-invalid={Boolean(errors.discountPercentage)}
+          aria-describedby={
+            errors.discountPercentage ? "discount-error" : undefined
+          }
         />
         {errors.discountPercentage ? (
-          <p className="text-sm text-red-500">{errors.discountPercentage}</p>
+          <p id="discount-error" role="alert" className="text-sm text-red-500">
+            {errors.discountPercentage}
+          </p>
         ) : null}
-      </label>
+      </div>
 
-      <label>
-        Stock
+      <div>
+        <label htmlFor="stock">Stock</label>
         <input
+          id="stock"
           className="mt-1 w-full border px-2 py-1"
           value={values.stock}
           onChange={(e) => updateField("stock", e.target.value)}
           aria-invalid={Boolean(errors.stock)}
+          aria-describedby={errors.stock ? "stock-error" : undefined}
         />
-        {errors.stock ? <p className="text-sm text-red-500">{errors.stock}</p> : null}
-      </label>
+        {errors.stock ? (
+          <p id="stock-error" role="alert" className="text-sm text-red-500">
+            {errors.stock}
+          </p>
+        ) : null}
+      </div>
 
-      <label>
-        Category
+      <div>
+        <label htmlFor="category">Category</label>
         <select
+          id="category"
           className="mt-1 w-full border px-2 py-1"
           value={values.category}
           onChange={(e) => updateField("category", e.target.value)}
           aria-invalid={Boolean(errors.category)}
+          aria-describedby={errors.category ? "category-error" : undefined}
         >
           <option value="">Select a category</option>
           {categories.map((name) => (
@@ -185,27 +215,35 @@ export function ProductForm({ categories, product }: Props) {
           ))}
         </select>
         {errors.category ? (
-          <p className="text-sm text-red-500">{errors.category}</p>
+          <p id="category-error" role="alert" className="text-sm text-red-500">
+            {errors.category}
+          </p>
         ) : null}
-      </label>
+      </div>
 
-      <label>
-        Description (optional)
+      <div>
+        <label htmlFor="description">Description (optional)</label>
         <textarea
+          id="description"
           className="mt-1 w-full border px-2 py-1"
           rows={4}
           maxLength={500}
           value={values.description}
           onChange={(e) => updateField("description", e.target.value)}
           aria-invalid={Boolean(errors.description)}
+          aria-describedby={
+            "desc-count" + (errors.description ? " desc-error" : "")
+          }
         />
-        <p className="text-sm text-zinc-500">
+        <p id="desc-count" className="text-sm text-zinc-500">
           {values.description.length}/500
         </p>
         {errors.description ? (
-          <p className="text-sm text-red-500">{errors.description}</p>
+          <p id="desc-error" role="alert" className="text-sm text-red-500">
+            {errors.description}
+          </p>
         ) : null}
-      </label>
+      </div>
 
       <button
         type="submit"

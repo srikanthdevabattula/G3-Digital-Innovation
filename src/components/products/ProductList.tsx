@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteProduct } from "@/lib/api";
 import { productsUrl } from "@/lib/product-url";
 import { ProductTable } from "@/components/products/ProductTable";
+import { ProductCards } from "@/components/products/ProductCards";
 import { TableSpinner } from "@/components/products/TableSpinner";
 import type { Product } from "@/types/product";
 
@@ -129,9 +130,13 @@ export function ProductList({
             type="checkbox"
             checked={onlyLow}
             onChange={(e) => onLowStockToggle(e.target.checked)}
+            aria-describedby="low-stock-hint"
           />
           Low stock only
         </label>
+        <span id="low-stock-hint" className="sr-only">
+          Shows only products with stock under 10 on this page
+        </span>
 
         <button
           type="button"
@@ -144,13 +149,17 @@ export function ProductList({
       </div>
 
       {deleteError ? (
-        <p className="mb-4 rounded border border-red-600 bg-red-50 p-3 text-red-800">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="mb-4 rounded border border-red-600 bg-red-50 p-3 text-red-800"
+        >
           {deleteError}
         </p>
       ) : null}
 
       {deleteSuccess ? (
-        <p className="mb-4 rounded border border-green-700 bg-green-50 p-3 text-green-800">
+        <p role="status" aria-live="polite" className="mb-4 rounded border border-green-700 bg-green-50 p-3 text-green-800">
           {deleteSuccess}
         </p>
       ) : null}
@@ -163,18 +172,33 @@ export function ProductList({
       {isDeleting ? (
         <TableSpinner label="Deleting…" />
       ) : visible.length === 0 ? (
-        <div className="rounded border border-dashed border-zinc-400 p-8 text-center text-zinc-600">
+        <div
+          role="status"
+          className="rounded border border-dashed border-zinc-400 p-8 text-center text-zinc-600"
+        >
           {products.length === 0
             ? "No products found."
             : "No products to show on this page."}
         </div>
       ) : (
-        <ProductTable
-          products={visible}
-          selectedIds={selectedIds}
-          onToggle={onToggle}
-          onToggleAll={onToggleAll}
-        />
+        <>
+          <div className="md:hidden">
+            <ProductCards
+              products={visible}
+              selectedIds={selectedIds}
+              onToggle={onToggle}
+              onToggleAll={onToggleAll}
+            />
+          </div>
+          <div className="hidden md:block">
+            <ProductTable
+              products={visible}
+              selectedIds={selectedIds}
+              onToggle={onToggle}
+              onToggleAll={onToggleAll}
+            />
+          </div>
+        </>
       )}
     </>
   );
