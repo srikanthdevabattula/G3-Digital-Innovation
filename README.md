@@ -39,7 +39,7 @@ Search and category together: DummyJSON has no “search in category” URL, so 
 - **URL state** for search, category, sort, page, and low-stock so refresh / back / share keep the same view.  
 - **Low stock only** filters the 10 rows already loaded, not the whole catalog (as the brief asked).  
 - **Phone:** cards under 768px. A 7-column table at 360px needs sideways scroll. Desktop stays a table.  
-- **Delete dialogs:** `window.confirm` / `alert` so keyboard (Enter / Esc) works without a custom modal.  
+- **Dialogs:** custom in-app modal for delete, save success, and unsaved-leave (Esc / Cancel). Closing the browser tab still uses the native leave warning — the browser does not allow replacing that.  
 - **One form** for create (`/products/new`) and edit (`/products/[id]/edit`).  
 - List fetch lives in a client component so the spinner/error sit on the **table**, not the whole page.
 
