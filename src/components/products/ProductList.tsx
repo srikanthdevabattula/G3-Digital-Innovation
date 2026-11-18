@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { deleteProduct } from "@/lib/api";
 import { productsUrl } from "@/lib/product-url";
 import { ProductTable } from "@/components/products/ProductTable";
+import { TableSpinner } from "@/components/products/TableSpinner";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -75,28 +76,49 @@ export function ProductList({
   }
 
   async function onDeleteSelected() {
-    if (selectedIds.length === 0) return;
-
-    const ok = window.confirm(
-      "Delete " + selectedIds.length + " selected product(s)?",
+    const selected = visible.filter((product) =>
+      selectedIds.includes(product.id),
     );
+    if (selected.length === 0) return;
+
+    const names = selected.map((product) => product.title).join("\n");
+    const ok = window.confirm("Delete these products?\n\n" + names);
     if (!ok) return;
 
     setIsDeleting(true);
     setDeleteError("");
     setDeleteSuccess("");
 
-    try {
-      await Promise.all(selectedIds.map((id) => deleteProduct(id)));
-      setRemovedIds((current) => [...current, ...selectedIds]);
-      setSelectedIds([]);
-      setDeleteSuccess("Deleted.");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Delete failed";
-      setDeleteError(message);
-    } finally {
-      setIsDeleting(false);
+    const deletedNames: string[] = [];
+    const failedNames: string[] = [];
+    const deletedIds: number[] = [];
+
+    // One by one so we can show which deletes worked and which failed
+    for (const product of selected) {
+      try {
+        await deleteProduct(product.id);
+        deletedNames.push(product.title);
+        deletedIds.push(product.id);
+      } catch (err) {
+        const text = err instanceof Error ? err.message : "Delete failed";
+        failedNames.push(product.title + " — " + text);
+      }
     }
+
+    if (deletedIds.length > 0) {
+      setRemovedIds((current) => [...current, ...deletedIds]);
+      window.alert("Deleted:\n" + deletedNames.join("\n"));
+      setDeleteSuccess("Deleted: " + deletedNames.join(", "));
+    }
+
+    if (failedNames.length > 0) {
+      setDeleteError("Could not delete: " + failedNames.join("; "));
+    }
+
+    setSelectedIds((current) =>
+      current.filter((id) => !deletedIds.includes(id)),
+    );
+    setIsDeleting(false);
   }
 
   return (
@@ -138,7 +160,9 @@ export function ProductList({
         {total}
       </p>
 
-      {visible.length === 0 ? (
+      {isDeleting ? (
+        <TableSpinner label="Deleting…" />
+      ) : visible.length === 0 ? (
         <div className="rounded border border-dashed border-zinc-400 p-8 text-center text-zinc-600">
           {products.length === 0
             ? "No products found."

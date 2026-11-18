@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteProduct } from "@/lib/api";
+import { TableSpinner } from "@/components/products/TableSpinner";
 
 export function ProductDetailActions({
   id,
@@ -38,6 +39,10 @@ export function ProductDetailActions({
     }
   }
 
+  if (busy) {
+    return <TableSpinner label="Deleting…" />;
+  }
+
   return (
     <div className="mt-6">
       <div className="flex gap-3">
@@ -47,10 +52,9 @@ export function ProductDetailActions({
         <button
           type="button"
           onClick={onDelete}
-          disabled={busy}
-          className="border px-3 py-1 disabled:opacity-50"
+          className="border px-3 py-1"
         >
-          {busy ? "Deleting…" : "Delete"}
+          Delete
         </button>
       </div>
 
