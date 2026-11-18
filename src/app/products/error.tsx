@@ -2,8 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { TableError } from "@/components/products/TableError";
+import { PageHeader } from "@/components/ui/PageHeader";
 
-export default function ProductsError({ reset }: { error: Error; reset: () => void }) {
+export default function ProductsError({
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   const router = useRouter();
 
   function onRetry() {
@@ -12,9 +18,11 @@ export default function ProductsError({ reset }: { error: Error; reset: () => vo
   }
 
   return (
-    <main className="p-6">
-      <h1 className="mb-4 text-2xl font-semibold">Products</h1>
-      <TableError onRetry={onRetry} />
+    <main className="mx-auto w-full max-w-6xl p-4 md:p-8">
+      <PageHeader title="Products" />
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <TableError onRetry={onRetry} />
+      </div>
     </main>
   );
 }

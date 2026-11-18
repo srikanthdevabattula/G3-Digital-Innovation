@@ -7,6 +7,7 @@ import { productsUrl } from "@/lib/product-url";
 import { ProductTable } from "@/components/products/ProductTable";
 import { ProductCards } from "@/components/products/ProductCards";
 import { TableSpinner } from "@/components/products/TableSpinner";
+import { AppDialog } from "@/components/ui/AppDialog";
 import type { Product } from "@/types/product";
 
 type Props = {
@@ -37,6 +38,8 @@ export function ProductList({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const [deleteSuccess, setDeleteSuccess] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<Product[] | null>(null);
+  const [doneNames, setDoneNames] = useState<string[]>([]);
 
   useEffect(() => {
     setOnlyLow(lowStock);
@@ -76,15 +79,18 @@ export function ProductList({
     setSelectedIds(allOn ? [] : visibleIds);
   }
 
-  async function onDeleteSelected() {
+  function onDeleteSelected() {
     const selected = visible.filter((product) =>
       selectedIds.includes(product.id),
     );
     if (selected.length === 0) return;
+    setPendingDelete(selected);
+  }
 
-    const names = selected.map((product) => product.title).join("\n");
-    const ok = window.confirm("Delete these products?\n\n" + names);
-    if (!ok) return;
+  async function confirmDelete() {
+    const selected = pendingDelete;
+    if (!selected || selected.length === 0) return;
+    setPendingDelete(null);
 
     setIsDeleting(true);
     setDeleteError("");
@@ -108,7 +114,7 @@ export function ProductList({
 
     if (deletedIds.length > 0) {
       setRemovedIds((current) => [...current, ...deletedIds]);
-      window.alert("Deleted:\n" + deletedNames.join("\n"));
+      setDoneNames(deletedNames);
       setDeleteSuccess("Deleted: " + deletedNames.join(", "));
     }
 
@@ -124,14 +130,30 @@ export function ProductList({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={onlyLow}
-            onChange={(e) => onLowStockToggle(e.target.checked)}
-            aria-describedby="low-stock-hint"
-          />
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-600">
+          <span className="relative inline-flex h-6 w-11 shrink-0 items-center">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={onlyLow}
+              onChange={(e) => onLowStockToggle(e.target.checked)}
+              aria-describedby="low-stock-hint"
+              className="absolute inset-0 z-10 cursor-pointer opacity-0"
+            />
+            <span
+              className={
+                "pointer-events-none h-6 w-11 rounded-full transition " +
+                (onlyLow ? "bg-indigo-600" : "bg-slate-200")
+              }
+            />
+            <span
+              className={
+                "pointer-events-none absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition " +
+                (onlyLow ? "translate-x-5" : "")
+              }
+            />
+          </span>
           Low stock only
         </label>
         <span id="low-stock-hint" className="sr-only">
@@ -142,8 +164,20 @@ export function ProductList({
           type="button"
           onClick={onDeleteSelected}
           disabled={selectedIds.length === 0 || isDeleting}
-          className="border px-3 py-1 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-rose-100 disabled:text-rose-300"
         >
+          <svg
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M7.5 3a1 1 0 0 0-1 1v.5H4a.75.75 0 0 0 0 1.5h.28l.7 9.1A2 2 0 0 0 6.97 17h6.06a2 2 0 0 0 1.99-1.9l.7-9.1H16a.75.75 0 0 0 0-1.5h-2.5V4a1 1 0 0 0-1-1h-5Zm1 .5h3v.5h-3v-.5Zm-1.27 3.2a.75.75 0 0 1 .77.73l.3 6a.75.75 0 1 1-1.5.08l-.3-6a.75.75 0 0 1 .73-.81Zm4.54 0a.75.75 0 0 1 .73.81l-.3 6a.75.75 0 1 1-1.5-.08l.3-6a.75.75 0 0 1 .77-.73Z"
+              clipRule="evenodd"
+            />
+          </svg>
           {isDeleting ? "Deleting…" : "Delete selected"}
         </button>
       </div>
@@ -152,19 +186,23 @@ export function ProductList({
         <p
           role="alert"
           aria-live="assertive"
-          className="mb-4 rounded border border-red-600 bg-red-50 p-3 text-red-800"
+          className="mt-3 rounded-lg bg-rose-50 p-3 text-sm text-rose-700"
         >
           {deleteError}
         </p>
       ) : null}
 
       {deleteSuccess ? (
-        <p role="status" aria-live="polite" className="mb-4 rounded border border-green-700 bg-green-50 p-3 text-green-800">
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700"
+        >
           {deleteSuccess}
         </p>
       ) : null}
 
-      <p className="mb-4">
+      <p className="mt-3 text-sm text-slate-500">
         Showing {visible.length} of {products.length} on this page. Total:{" "}
         {total}
       </p>
@@ -174,15 +212,15 @@ export function ProductList({
       ) : visible.length === 0 ? (
         <div
           role="status"
-          className="rounded border border-dashed border-zinc-400 p-8 text-center text-zinc-600"
+          className="mt-4 rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm"
         >
           {products.length === 0
             ? "No products found."
             : "No products to show on this page."}
         </div>
       ) : (
-        <>
-          <div className="md:hidden">
+        <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
+          <div className="md:hidden p-3">
             <ProductCards
               products={visible}
               selectedIds={selectedIds}
@@ -198,8 +236,38 @@ export function ProductList({
               onToggleAll={onToggleAll}
             />
           </div>
-        </>
+        </div>
       )}
+
+      <AppDialog
+        open={Boolean(pendingDelete)}
+        title="Delete these products?"
+        danger
+        confirmLabel="Delete"
+        onClose={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      >
+        {pendingDelete ? (
+          <ul className="list-disc space-y-1 pl-5">
+            {pendingDelete.map((product) => (
+              <li key={product.id}>{product.title}</li>
+            ))}
+          </ul>
+        ) : null}
+      </AppDialog>
+
+      <AppDialog
+        open={doneNames.length > 0}
+        title="Deleted"
+        confirmLabel="OK"
+        onClose={() => setDoneNames([])}
+      >
+        <ul className="list-disc space-y-1 pl-5">
+          {doneNames.map((name) => (
+            <li key={name}>{name}</li>
+          ))}
+        </ul>
+      </AppDialog>
     </>
   );
 }

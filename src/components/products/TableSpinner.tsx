@@ -7,10 +7,10 @@ export function TableSpinner({ label = "Loading products…" }: { label?: string
       aria-busy="true"
     >
       <div
-        className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-800"
+        className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600"
         aria-hidden="true"
       />
-      <p className="mt-4 text-zinc-600">{label}</p>
+      <p className="mt-4 text-slate-500">{label}</p>
     </div>
   );
 }

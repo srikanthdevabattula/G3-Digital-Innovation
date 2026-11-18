@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCategories, getProduct } from "@/lib/api";
 import { ProductForm } from "@/components/products/ProductForm";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function EditProductPage({
   params,
@@ -24,8 +25,11 @@ export default async function EditProductPage({
   }
 
   return (
-    <main className="p-6">
-      <ProductForm categories={categories} product={product} />
+    <main className="mx-auto w-full max-w-6xl p-4 md:p-8">
+      <PageHeader title="Edit product" backHref={"/products/" + product.id} />
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <ProductForm categories={categories} product={product} />
+      </div>
     </main>
   );
 }

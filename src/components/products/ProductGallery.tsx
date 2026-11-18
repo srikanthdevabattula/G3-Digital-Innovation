@@ -13,7 +13,11 @@ export function ProductGallery({
   const [active, setActive] = useState(0);
 
   if (photos.length === 0) {
-    return <p>No images.</p>;
+    return (
+      <p className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
+        No images.
+      </p>
+    );
   }
 
   return (
@@ -21,7 +25,7 @@ export function ProductGallery({
       <img
         src={photos[active]}
         alt={title}
-        className="mb-3 h-64 w-full max-w-md object-contain"
+        className="mb-3 h-64 w-full rounded-2xl bg-slate-50 object-contain"
       />
 
       <div className="flex flex-wrap gap-2">
@@ -33,10 +37,18 @@ export function ProductGallery({
             aria-label={"Show image " + (index + 1) + " of " + photos.length}
             aria-pressed={index === active}
             className={
-              index === active ? "border-2 border-white p-0.5" : "border p-0.5"
+              index === active
+                ? "rounded-lg border-2 border-indigo-600 p-0.5"
+                : "rounded-lg border border-slate-200 p-0.5 hover:border-indigo-300"
             }
           >
-            <img src={src} alt="" width={56} height={56} />
+            <img
+              src={src}
+              alt=""
+              width={56}
+              height={56}
+              className="h-14 w-14 rounded-md object-contain"
+            />
           </button>
         ))}
       </div>

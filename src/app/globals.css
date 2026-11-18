@@ -24,12 +24,30 @@ html {
 html,
 body,
 #content {
-  background: #ffffff;
-  color: #171717;
+  background: #f3f0fb;
+  color: #1e293b;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+a,
+button,
+label,
+select,
+summary,
+[role="button"],
+[role="switch"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
 }
 
 :focus-visible {

@@ -19,10 +19,6 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("ProductForm", () => {
-  beforeEach(() => {
-    window.alert = jest.fn();
-  });
-
   test("blocks submit when title is empty and price is invalid", async () => {
     const user = userEvent.setup();
     mockFetchOk();

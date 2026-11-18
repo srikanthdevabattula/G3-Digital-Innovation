@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCategories, PAGE_SIZE } from "@/lib/api";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ProductResults } from "@/components/products/ProductResults";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function ProductsPage({
   searchParams,
@@ -37,32 +38,39 @@ export default async function ProductsPage({
   }
 
   return (
-    <main className="p-6">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Products</h1>
-        <Link href="/products/new" className="border px-3 py-1">
-          Add product
-        </Link>
+    <main className="mx-auto w-full max-w-6xl p-4 md:p-8">
+      <PageHeader
+        title="Products"
+        action={
+          <Link
+            href="/products/new"
+            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-indigo-500"
+          >
+            + Add product
+          </Link>
+        }
+      />
+
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <ProductFilters
+          q={q}
+          category={category}
+          sortBy={sortBy}
+          order={order}
+          lowStock={lowStock}
+          categories={categories}
+        />
+
+        <ProductResults
+          page={page}
+          skip={skip}
+          q={q}
+          category={category}
+          sortBy={sortBy}
+          order={order}
+          lowStock={lowStock}
+        />
       </div>
-
-      <ProductFilters
-        q={q}
-        category={category}
-        sortBy={sortBy}
-        order={order}
-        lowStock={lowStock}
-        categories={categories}
-      />
-
-      <ProductResults
-        page={page}
-        skip={skip}
-        q={q}
-        category={category}
-        sortBy={sortBy}
-        order={order}
-        lowStock={lowStock}
-      />
     </main>
   );
 }

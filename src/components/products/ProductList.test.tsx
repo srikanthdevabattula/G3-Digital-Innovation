@@ -57,8 +57,6 @@ describe("ProductList", () => {
       ok: true,
       text: async () => JSON.stringify({ id: 1, isDeleted: true }),
     });
-    window.alert = jest.fn();
-
     render(
       <ProductList
         {...listProps}
@@ -69,12 +67,12 @@ describe("ProductList", () => {
 
     await user.click(screen.getAllByRole("checkbox", { name: /Select Low item/i })[0]);
 
-    window.confirm = jest.fn().mockReturnValue(false);
     await user.click(screen.getByRole("button", { name: "Delete selected" }));
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(global.fetch).not.toHaveBeenCalled();
 
-    window.confirm = jest.fn().mockReturnValue(true);
     await user.click(screen.getByRole("button", { name: "Delete selected" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
     expect(global.fetch).toHaveBeenCalled();
     expect(String((global.fetch as jest.Mock).mock.calls[0][0])).toContain("/products/1");
   });

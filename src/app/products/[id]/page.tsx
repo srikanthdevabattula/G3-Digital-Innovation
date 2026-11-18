@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/api";
 import { ProductGallery } from "@/components/products/ProductGallery";
 import { ProductInfo } from "@/components/products/ProductInfo";
 import { ProductReviews } from "@/components/products/ProductReviews";
 import { ProductDetailActions } from "@/components/products/ProductDetailActions";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function ProductDetailPage({
   params,
@@ -14,33 +14,32 @@ export default async function ProductDetailPage({
   const { id } = await params;
   const productId = Number(id);
 
-  // /products/abc is not a real id
   if (!productId) {
     notFound();
   }
 
   const product = await getProduct(productId);
 
-  // DummyJSON returned 404
   if (!product) {
     notFound();
   }
 
   return (
-    <main className="p-6">
-      <Link href="/products" className="mb-4 inline-block">
-        Back to products
-      </Link>
+    <main className="mx-auto w-full max-w-6xl p-4 md:p-8">
+      <PageHeader
+        title="Product"
+        backHref="/products"
+        action={<ProductDetailActions id={product.id} title={product.title} />}
+      />
 
-      <div className="mt-4 grid gap-8 md:grid-cols-2">
-        <ProductGallery title={product.title} images={product.images} />
-        <div>
+      <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <div className="grid gap-8 md:grid-cols-2">
+          <ProductGallery title={product.title} images={product.images} />
           <ProductInfo product={product} />
-          <ProductDetailActions id={product.id} title={product.title} />
         </div>
-      </div>
 
-      <ProductReviews reviews={product.reviews || []} />
+        <ProductReviews reviews={product.reviews || []} />
+      </div>
     </main>
   );
 }
