@@ -52,21 +52,48 @@ export function ProductForm({ categories, product }: Props) {
   }
 
   useEffect(() => {
+    if (!dirty) return;
+
+    function askLeave() {
+      return window.confirm("You have unsaved changes. Leave anyway?");
+    }
+
     function onBrowserLeave(event: BeforeUnloadEvent) {
-      if (!dirty) return;
       event.preventDefault();
       event.returnValue = "";
     }
 
-    window.addEventListener("beforeunload", onBrowserLeave);
-    return () => window.removeEventListener("beforeunload", onBrowserLeave);
-  }, [dirty]);
+    // Extra history entry so Back fires popstate while we are still on the form
+    window.history.pushState(null, "", window.location.href);
 
-  function onBackClick(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (dirty && !window.confirm("You have unsaved changes. Leave anyway?")) {
-      event.preventDefault();
+    function onBackButton() {
+      if (askLeave()) {
+        window.removeEventListener("popstate", onBackButton);
+        window.history.back();
+      } else {
+        window.history.pushState(null, "", window.location.href);
+      }
     }
-  }
+
+    function onAnyLinkClick(event: MouseEvent) {
+      const link = (event.target as HTMLElement | null)?.closest("a");
+      if (!link || link.target === "_blank") return;
+      if (!askLeave()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+
+    window.addEventListener("beforeunload", onBrowserLeave);
+    window.addEventListener("popstate", onBackButton);
+    document.addEventListener("click", onAnyLinkClick, true);
+
+    return () => {
+      window.removeEventListener("beforeunload", onBrowserLeave);
+      window.removeEventListener("popstate", onBackButton);
+      document.removeEventListener("click", onAnyLinkClick, true);
+    };
+  }, [dirty]);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -113,9 +140,7 @@ export function ProductForm({ categories, product }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="flex max-w-xl flex-col gap-4">
-      <Link href={backHref} onClick={onBackClick}>
-        Cancel
-      </Link>
+      <Link href={backHref}>Cancel</Link>
 
       <h1 className="text-2xl font-semibold">
         {isEdit ? "Edit product" : "Create product"}

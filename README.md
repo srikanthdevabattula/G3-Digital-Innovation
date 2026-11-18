@@ -1,61 +1,69 @@
 # Product admin
 
-Next.js App Router app against DummyJSON.
+Junior frontend take-home. Next.js App Router + TypeScript (strict) + Tailwind. Data from [DummyJSON products](https://dummyjson.com/docs/products).
 
-## Getting Started
-
-First, run the development server:
-
-## Getting Started
-
-First, run the development server:
+## Run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 (redirects to `/products`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+```
 
-## Responsive layout
+Six Jest + React Testing Library tests. I picked **rules**, not CSS snapshots:
 
-From **360px** phones up, the list does **not** use a cramped table.
+1. Form: empty title / extra price decimals block submit  
+2. Valid create hits `POST /products/add`  
+3. Failed save keeps the fields and shows the error  
+4. Stock &lt; 10 is Low; “low stock only” filters **this page** of 10  
+5. List error shows Retry  
+6. Delete: Cancel does not call the API, Confirm does  
 
-- **Below `md` (768px):** each product is a **card** (`ProductCards`). Image, title, price, stock and a checkbox stack so you do not scroll sideways.
-- **`md` and up:** a **table** (`ProductTable`) is easier to scan and compare columns.
+Those are the bits most likely to break if someone refactors.
 
-We chose cards on small screens because a 7-column table is unreadable at 360px.
+## DummyJSON
 
-## Accessibility checks
+Create, update and delete are **simulated**. The API returns success, but a refresh loads the original catalog. The UI still shows the real response (success or fail).
 
-- Keyboard: Tab through filters, product links, checkboxes, pagination, form fields, gallery thumbnails (they are `<button>`s).
-- Visible **focus** ring (`:focus-visible`).
-- **Skip to content** link in the layout.
-- Form fields have `<label>`s. Errors use `role="alert"` and `aria-describedby`.
-- Load/delete errors and success use `aria-live`.
-- Confirm/delete dialogs use the browser `confirm` / `alert` (keyboard works there).
-- Gallery thumbnails use `aria-pressed` for the active image.
+Search and category together: DummyJSON has no “search in category” URL, so **search wins**.
 
-## Learn More
+## Decisions
 
-To learn more about Next.js, take a look at the following resources:
+- **URL state** for search, category, sort, page, and low-stock so refresh / back / share keep the same view.  
+- **Low stock only** filters the 10 rows already loaded, not the whole catalog (as the brief asked).  
+- **Phone:** cards under 768px. A 7-column table at 360px needs sideways scroll. Desktop stays a table.  
+- **Delete dialogs:** `window.confirm` / `alert` so keyboard (Enter / Esc) works without a custom modal.  
+- **One form** for create (`/products/new`) and edit (`/products/[id]/edit`).  
+- List fetch lives in a client component so the spinner/error sit on the **table**, not the whole page.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Accessibility (what I checked)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Tab through filters, checkboxes, title links, pagination, form, gallery thumbnails  
+- Focus ring is visible  
+- Skip to content
 
-## Deploy on Vercel
+## Time (rough)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Part | Time |
+|---|---|
+| Setup + API client | ~1h |
+| List (filters, URL, pagination, low stock, bulk delete) | ~3h |
+| Detail | ~1h |
+| Create/edit form | ~1.5h |
+| Loading / error / empty + light theme | ~1h |
+| Responsive + a11y | ~45m |
+| `REVIEW.md` | ~30m |
+| Tests | ~1h |
+| README | ~20m |
+| **Total** | **~10h** |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## AI
+
+Cursor was used to scaffold files, write the first versions of components, tests, and this README. I went through the brief point by point, checked the DummyJSON docs, and changed UI (light theme, delete loader, shorter `REVIEW.md`) as we went.
