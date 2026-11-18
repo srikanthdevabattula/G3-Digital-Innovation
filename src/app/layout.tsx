@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Product admin",
   description: "Product admin app for DummyJSON products",
@@ -21,9 +23,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full bg-white text-zinc-900 antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-white text-zinc-900">
+      <body
+        suppressHydrationWarning
+        className="flex min-h-full flex-col bg-white text-zinc-900"
+      >
         <a href="#content" className="skip-link">
           Skip to content
         </a>
