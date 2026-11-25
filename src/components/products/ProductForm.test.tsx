@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ProductForm } from "./ProductForm";
+import { http } from "@/lib/api";
 
 const categories = ["beauty"];
 
-function mockFetchOk() {
-  global.fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    text: async () => JSON.stringify({ id: 1, title: "Nice cream" }),
-  });
+function mockRequestOk() {
+  jest.spyOn(http, "request").mockResolvedValue({
+    data: { id: 1, title: "Nice cream" },
+  } as never);
 }
 
 async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
@@ -21,7 +21,7 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
 describe("ProductForm", () => {
   test("blocks submit when title is empty and price is invalid", async () => {
     const user = userEvent.setup();
-    mockFetchOk();
+    mockRequestOk();
     render(<ProductForm categories={categories} />);
 
     await user.type(screen.getByLabelText("Price"), "10.999");
@@ -31,29 +31,29 @@ describe("ProductForm", () => {
     expect(
       screen.getByText("Price must be greater than 0, with at most 2 decimal places"),
     ).toBeInTheDocument();
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(http.request).not.toHaveBeenCalled();
   });
 
   test("calls the create API with valid values", async () => {
     const user = userEvent.setup();
-    mockFetchOk();
+    mockRequestOk();
     render(<ProductForm categories={categories} />);
 
     await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: "Create product" }));
 
-    expect(global.fetch).toHaveBeenCalled();
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0];
-    expect(String(url)).toContain("/products/add");
+    expect(http.request).toHaveBeenCalled();
+    const options = (http.request as jest.Mock).mock.calls[0][0];
+    expect(String(options.url)).toContain("/products/add");
     expect(options.method).toBe("POST");
-    expect(JSON.parse(options.body).title).toBe("Nice cream");
+    expect(options.data.title).toBe("Nice cream");
   });
 
   test("keeps input and shows an error when save fails", async () => {
     const user = userEvent.setup();
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: false,
-      text: async () => JSON.stringify({ message: "Server down" }),
+    jest.spyOn(http, "request").mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: "Server down" } },
     });
     render(<ProductForm categories={categories} />);
 

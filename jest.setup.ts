@@ -6,3 +6,7 @@ jest.mock("next/navigation", () => ({
     replace: jest.fn(),
   }),
 }));
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});

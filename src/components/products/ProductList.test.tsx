@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ProductList } from "./ProductList";
+import { http } from "@/lib/api";
 import type { Product } from "@/types/product";
 
 function product(overrides: Partial<Product>): Product {
@@ -53,10 +54,9 @@ describe("ProductList", () => {
 
   test("cancel on delete does not call the API; confirm does", async () => {
     const user = userEvent.setup();
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      text: async () => JSON.stringify({ id: 1, isDeleted: true }),
-    });
+    jest.spyOn(http, "request").mockResolvedValue({
+      data: { id: 1, isDeleted: true },
+    } as never);
     render(
       <ProductList
         {...listProps}
@@ -69,11 +69,13 @@ describe("ProductList", () => {
 
     await user.click(screen.getByRole("button", { name: "Delete selected" }));
     await user.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(http.request).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole("button", { name: "Delete selected" }));
     await user.click(screen.getByRole("button", { name: "Delete" }));
-    expect(global.fetch).toHaveBeenCalled();
-    expect(String((global.fetch as jest.Mock).mock.calls[0][0])).toContain("/products/1");
+    expect(http.request).toHaveBeenCalled();
+    expect(String((http.request as jest.Mock).mock.calls[0][0].url)).toContain(
+      "/products/1",
+    );
   });
 });

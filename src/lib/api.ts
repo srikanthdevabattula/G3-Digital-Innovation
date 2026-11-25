@@ -1,29 +1,38 @@
+import axios from "axios";
 import type { Product, ProductInput, ProductsResponse } from "@/types/product";
 
 const BASE_URL = "https://dummyjson.com";
 export const PAGE_SIZE = 10;
 
-async function getJson(path: string, options?: RequestInit) {
-  const res = await fetch(BASE_URL + path, {
-    cache: "no-store",
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
+export const http = axios.create({
+  baseURL: BASE_URL,
+  headers: { "Content-Type": "application/json" },
+});
 
-  const text = await res.text();
-  let data;
+function friendlyError(err: unknown, fallback: string) {
+  if (axios.isAxiosError(err)) {
+    const message = err.response?.data?.message;
+    if (typeof message === "string" && message) {
+      return new Error(message);
+    }
+  }
+  return new Error(fallback);
+}
 
+async function getJson(
+  path: string,
+  config?: { method?: string; data?: unknown },
+) {
   try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("Could not load products. Please try again.");
+    const res = await http.request({
+      url: path,
+      method: config?.method || "GET",
+      data: config?.data,
+    });
+    return res.data;
+  } catch (err) {
+    throw friendlyError(err, "Could not load products. Please try again.");
   }
-
-  if (!res.ok) {
-    throw new Error(data.message || "Could not load products. Please try again.");
-  }
-
-  return data;
 }
 
 export function getCategories() {
@@ -67,39 +76,28 @@ export function getProducts(filters: {
 }
 
 export async function getProduct(id: number) {
-  const res = await fetch(BASE_URL + "/products/" + id, { cache: "no-store" });
-  const text = await res.text();
-  let data;
-
   try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("Could not load product. Please try again.");
+    const res = await http.get("/products/" + id);
+    return res.data as Product;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      return null;
+    }
+    throw friendlyError(err, "Could not load product. Please try again.");
   }
-
-  // DummyJSON sends 404 when the id does not exist
-  if (res.status === 404) {
-    return null;
-  }
-
-  if (!res.ok) {
-    throw new Error(data.message || "Could not load product. Please try again.");
-  }
-
-  return data as Product;
 }
 
 export function createProduct(body: ProductInput) {
   return getJson("/products/add", {
     method: "POST",
-    body: JSON.stringify(body),
+    data: body,
   }) as Promise<Product>;
 }
 
 export function updateProduct(id: number, body: ProductInput) {
   return getJson("/products/" + id, {
     method: "PUT",
-    body: JSON.stringify(body),
+    data: body,
   }) as Promise<Product>;
 }
 

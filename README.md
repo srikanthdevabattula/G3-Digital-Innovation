@@ -1,6 +1,6 @@
 # Product admin
 
-Junior frontend take-home. Next.js App Router + TypeScript (strict) + Tailwind. Data from [DummyJSON products](https://dummyjson.com/docs/products).
+Junior frontend take-home. Next.js App Router + TypeScript (strict) + Tailwind. Data from [DummyJSON products](https://dummyjson.com/docs/products) via Axios.
 
 ## Run
 

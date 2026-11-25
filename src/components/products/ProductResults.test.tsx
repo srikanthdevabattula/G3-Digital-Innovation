@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ProductResults } from "./ProductResults";
+import { http } from "@/lib/api";
 
 const props = {
   page: 1,
@@ -15,19 +16,17 @@ const props = {
 describe("ProductResults", () => {
   test("shows error and Retry when the list request fails", async () => {
     const user = userEvent.setup();
-    global.fetch = jest
-      .fn()
+    jest
+      .spyOn(http, "request")
       .mockRejectedValueOnce(new Error("network"))
       .mockResolvedValueOnce({
-        ok: true,
-        text: async () =>
-          JSON.stringify({
-            products: [],
-            total: 0,
-            skip: 0,
-            limit: 10,
-          }),
-      });
+        data: {
+          products: [],
+          total: 0,
+          skip: 0,
+          limit: 10,
+        },
+      } as never);
 
     render(<ProductResults {...props} />);
 
@@ -36,6 +35,6 @@ describe("ProductResults", () => {
     await user.click(retry);
 
     expect(await screen.findByText("No products found.")).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(http.request).toHaveBeenCalledTimes(2);
   });
 });
